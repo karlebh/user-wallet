@@ -46,6 +46,7 @@ class SendMoneyAction
                 'wallet_id' => auth()->user()->wallet->id,
                 'currency' => $requestData['currency'] ?? "NGN",
                 'type' => "debit",
+                'amount' => $requestData['amount'],
                 'note' => $requestData['note'] ?? ""
             ]);
 
