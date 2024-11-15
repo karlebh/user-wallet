@@ -17,6 +17,6 @@ class CheckBalanceAction
         return response()->json([
             'status' => true,
             'balance' => $balance,
-        ], 500);
+        ], 200);
     }
 }

@@ -12,6 +12,7 @@ class Transaction extends Model
         'wallet_id',
         'currency',
         'type',
+        "trx",
         'note',
         'amount',
     ];

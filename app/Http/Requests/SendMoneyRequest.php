@@ -23,8 +23,8 @@ class SendMoneyRequest extends FormRequest
     {
         return
             [
-                'reciever_id' => ['required'],
-                'amount' => ['required', 'min:1', 'max:2000000'],
+                'reciever_id' => ['required', 'integer'],
+                'amount' => ['required', 'numeric', 'min:1', 'max:2000000'],
                 'currency' => ['nullable', 'string'],
                 'note' => ['nullable', 'string'],
             ];

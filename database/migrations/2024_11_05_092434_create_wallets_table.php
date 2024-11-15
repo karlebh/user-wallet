@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained();
             $table->string('currency')->default('NGN');
-            $table->bigInteger('balance')->unsigned()->default(10_000);
+            $table->float('balance')->unsigned()->default(10_000);
             $table->timestamps();
         });
     }

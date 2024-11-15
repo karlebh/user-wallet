@@ -17,10 +17,11 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained();
             $table->foreignIdFor(Wallet::class)->constrained();
-            $table->string('currency')->default('NGN');
+            $table->string('currency');
+            $table->string('trx');
             $table->string('type');
             $table->text('note')->nullable();
-            $table->bigInteger('amount')->unsigned();
+            $table->float('amount')->unsigned();
             $table->timestamps();
         });
     }
