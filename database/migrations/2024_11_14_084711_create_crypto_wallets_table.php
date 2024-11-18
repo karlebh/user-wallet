@@ -12,12 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wallets', function (Blueprint $table) {
+        Schema::create('crypto_wallets', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained();
-            $table->string('currency')->default('Nigerian Naira');
-            $table->string('code')->default('NGN');
-            $table->float('balance')->unsigned()->default(10_000);
+            $table->string('currency')->default('Bitcoin');
+            $table->string('code')->default('BTC');
+            $table->float('balance')->unsigned()->default(3);
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('wallets');
+        Schema::dropIfExists('crypto_wallets');
     }
 };

@@ -17,6 +17,7 @@ class SendMoneyAction
 
     public function execute(array $requestData)
     {
+        //Add rate limiter to route
         $to_user = User::with('wallet')
             ->where('id', $requestData['reciever_id'])
             ->first();
@@ -37,9 +38,7 @@ class SendMoneyAction
             ], 500);
         }
 
-        $transaction_id = null;
-
-        DB::transaction(function () use ($to_user, $requestData, &$transaction_id) {
+        $transaction = DB::transaction(function () use ($to_user, $requestData) {
 
             $new_balance = auth()->user()->wallet->balance - $requestData['amount'];
             auth()->user()->wallet->update(['balance' => $new_balance]);
@@ -69,13 +68,14 @@ class SendMoneyAction
                 'note' => $requestData['note'] ?? ""
             ]);
 
-            $transaction_id =  $transaction->id;
+            return $transaction;
         });
 
         return response()->json([
             'status' => true,
             'message' => 'Transaction Successful!',
-            'transaction_id' => $transaction_id
+            'transaction_id' => $transaction->id,
+            'trx' => $transaction->trx,
         ], 201);
     }
 }

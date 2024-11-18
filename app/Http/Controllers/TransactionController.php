@@ -51,6 +51,9 @@ class TransactionController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $exception->getMessage(),
+                'line' => $exception->getLine(),
+                'execption' => $exception,
+                'class' => $exception,
             ], 500);
         }
     }
