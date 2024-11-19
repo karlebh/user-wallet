@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddCryptoRequest extends FormRequest
+class GetCryptoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +22,8 @@ class AddCryptoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['string', 'required', 'max:225'],
-            'code' => ['string', 'required', 'max:225'],
-            'exchange_rate' => ['integer', 'required',]
+            'name' => ['nullable', 'string', 'exists:crypto_currencies,name'],
+            'code' => ['required', 'string', 'exists:crypto_currencies,code'],
         ];
     }
 }

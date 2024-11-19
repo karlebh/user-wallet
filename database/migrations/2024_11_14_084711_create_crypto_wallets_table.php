@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('crypto_wallets', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained();
-            $table->string('currency')->default('Bitcoin');
+            $table->string('name')->default('Bitcoin');
             $table->string('code')->default('BTC');
             $table->float('balance')->unsigned()->default(3);
             $table->timestamps();

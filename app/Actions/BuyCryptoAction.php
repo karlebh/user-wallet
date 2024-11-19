@@ -2,13 +2,18 @@
 
 namespace App\Actions;
 
+use App\Enums\TransactionType;
 use App\Models\CryptoCurrency;
 use App\Models\CryptoWallet;
+use App\Models\Transaction;
 use App\Models\Wallet;
+use App\Traits\UtilityHelper;
 
 class BuyCryptoAction
 {
-    public function execute($requestData)
+    use UtilityHelper;
+
+    public function execute(array $requestData)
     {
         $fiat_balance = auth()->user()->wallet()->balance;
 
@@ -22,18 +27,31 @@ class BuyCryptoAction
         $dollar_rate = auth()->user()->wallet()->exchange_rate;
 
         $crypto = CryptoCurrency::query()
-            ->whereName($requestData['code'])
-            ->orWhereCode($requestData['name'])
+            ->whereCode($requestData['code'])
+            ->orWhereName($requestData['name'])
             ->first();
 
         $to_usd = $fiat_balance / $dollar_rate;
         $to_crypto = $to_usd / $crypto->exchange_rate;
 
-        if (auth()->user()->cryptoWallet->code !== $requestData['code']) {
+        $wallet = auth()->user()->cryptoWallet;
+
+        if ($wallet->code !== $requestData['code']) {
             auth()->user()->cryptoWallet()->create([
                 'currency' => $requestData['name'],
                 'code' => $requestData['code'],
                 'balance' => $to_crypto,
+            ]);
+
+            Transaction::create([
+                'user_id' => auth()->id(),
+                'transactionable_id' => $wallet->id,
+                'transactionable_id' => $wallet::class,
+                'currency' => $wallet->code,
+                'type' => TransactionType::PURCHASE,
+                'trx' => $this->generateTrxCode(),
+                'amount' => $to_crypto,
+                'note' => $requestData['note'] ?? ""
             ]);
 
             return response()->json([
@@ -43,10 +61,23 @@ class BuyCryptoAction
             ], 201);
         }
 
-        CryptoWallet::query()
+        $wallet = CryptoWallet::query()
             ->where('code', $requestData['code'])
             ->where('user_id', auth()->id())
-            ->increment('balance', $to_crypto);
+            ->first();
+
+        $wallet->increment('balance', $to_crypto);
+
+        Transaction::create([
+            'user_id' => auth()->id(),
+            'transactionable_id' => $wallet->id,
+            'transactionable_id' => $wallet::class,
+            'currency' => $wallet->code,
+            'type' => TransactionType::PURCHASE,
+            'trx' => $this->generateTrxCode(),
+            'amount' => $to_crypto,
+            'note' => $requestData['note'] ?? ""
+        ]);
 
         return response()->json([
             'status' => true,

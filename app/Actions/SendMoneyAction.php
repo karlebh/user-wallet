@@ -6,14 +6,12 @@ namespace App\Actions;
 use App\Enums\TransactionType;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Traits\UtilityHelper;
 use Illuminate\Support\Facades\DB;
 
 class SendMoneyAction
 {
-    private  function generateTrxCode($prefix = 'trx')
-    {
-        return $prefix . '-' . time() . '-' . uniqid();
-    }
+    use UtilityHelper;
 
     public function execute(array $requestData)
     {
@@ -46,11 +44,14 @@ class SendMoneyAction
             $to_user->wallet->balance += $requestData['amount'];
             $to_user->wallet->save();
 
+            $user = auth()->user();
+
             // For sender
             $transaction = Transaction::create([
                 'user_id' => auth()->id(),
-                'wallet_id' => auth()->user()->wallet->id,
-                'currency' => $requestData['currency'] ?? "NGN",
+                'transactionable_id' => $user->wallet->id,
+                'transactionable_id' => $user->wallet::class,
+                'currency' => $user->wallet->code,
                 'type' => TransactionType::DEBIT,
                 'trx' => $this->generateTrxCode(),
                 'amount' => $requestData['amount'],
@@ -60,8 +61,9 @@ class SendMoneyAction
             // For receiver
             Transaction::create([
                 'user_id' => $to_user->id,
-                'wallet_id' => $to_user->wallet->id,
-                'currency' => $requestData['currency'] ?? "NGN",
+                'transactionable_id' => $to_user->wallet->id,
+                'transactionable_id' => $to_user->wallet::class,
+                'currency' => $to_user->wallet->code,
                 'type' => TransactionType::CREDIT,
                 'trx' => $this->generateTrxCode(),
                 'amount' => $requestData['amount'],

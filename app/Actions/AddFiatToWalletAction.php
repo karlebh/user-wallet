@@ -4,34 +4,36 @@ namespace App\Actions;
 
 use App\Enums\TransactionType;
 use App\Models\Transaction;
+use App\Models\Wallet;
 use App\Traits\UtilityHelper;
 
-class WithdrawalAction
+class AddFiatToWalletAction
 {
     use UtilityHelper;
 
     public function execute(array $requestData)
     {
-        $balance = auth()->user()->wallet->amount;
+        $balance = auth()->user()->wallet()->balance;
 
-        if ($requestData['amount'] > $balance) {
+        if (
+            $balance >= config('wallet.max_fiat_ballance')
+            || ($balance + $requestData['amount'] >= config('wallet.max_fiat_ballance'))
+        ) {
             return response()->json([
                 'status' => false,
-                'message' => 'Insufficient Funds',
+                'message' => 'You can not have more than a billion in an account',
             ], 500);
         }
 
-        $balance -= $requestData['amount'];
+        auth()->user()->wallet()->increment('balance', $requestData['amount']);
         $wallet = auth()->user()->wallet;
-
-        $wallet->update(['amount' => $balance]);
 
         Transaction::create([
             'user_id' => auth()->id(),
             'transactionable_id' => $wallet->id,
             'transactionable_id' => $wallet::class,
             'currency' => $wallet->code,
-            'type' => TransactionType::WITHDRAWAL,
+            'type' => TransactionType::DEPOSIT,
             'trx' => $this->generateTrxCode(),
             'amount' => $requestData['amount'],
             'note' => $requestData['note'] ?? ""
@@ -39,8 +41,7 @@ class WithdrawalAction
 
         return response()->json([
             'status' => true,
-            'message' => $wallet->code . $requestData['amount'] . " withdrawn successfully",
-            'balance' => $balance,
-        ], 500);
+            'balance' => $wallet->currency . $requestData['amount'] . "added successfully",
+        ], 201);
     }
 }

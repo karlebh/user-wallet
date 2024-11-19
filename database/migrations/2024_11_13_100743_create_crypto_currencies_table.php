@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('crypto_currencies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('currency');
             $table->string('code');
             $table->float('exchange_rate')->unsigned();
             $table->timestamps();

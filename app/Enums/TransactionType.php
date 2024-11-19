@@ -11,4 +11,5 @@ enum TransactionType: string
     case PAYMENT = 'payment';
     case WITHDRAWAL = 'withdrawal';
     case DEPOSIT = 'deposit';
+    case PURCHASE = 'purchase';
 }

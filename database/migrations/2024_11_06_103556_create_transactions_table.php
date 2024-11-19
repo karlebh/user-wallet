@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained();
-            $table->foreignIdFor(Wallet::class)->constrained();
+            $table->morphs('transactionable');
             $table->string('currency');
             $table->string('trx');
             $table->string('type');

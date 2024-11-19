@@ -22,10 +22,10 @@ class AddFiatRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => [],
-            'country' => [],
-            'code' => [],
-            'exchange_rate' => []
+            'name' => ['string', 'required', 'max:225'],
+            'country' => ['string', 'required', 'max:225'],
+            'code' => ['string', 'required', 'max:225'],
+            'exchange_rate' => ['integer', 'required',]
         ];
     }
 }

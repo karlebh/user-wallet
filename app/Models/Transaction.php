@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Transaction extends Model
 {
     protected $fillable = [
         'user_id',
-        'wallet_id',
+        'transactionable_id',
+        'transactionable_type',
         'currency',
         'type',
         "trx",
@@ -17,13 +20,28 @@ class Transaction extends Model
         'amount',
     ];
 
+    protected function walletId(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->transactionable_id
+        );
+    }
+
+    protected function walletType(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->transactionable_type
+        );
+    }
+
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function wallet()
+    public function transactionable(): MorphTo
     {
-        return $this->belongsTo(Wallet::class);
+        return $this->morphTo();
     }
 }

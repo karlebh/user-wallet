@@ -2,7 +2,7 @@
 
 namespace App\Actions;
 
-class CryptoToCurrencyAction
+class SellCryptoAction
 {
     public function execute()
     {

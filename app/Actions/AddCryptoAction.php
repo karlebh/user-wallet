@@ -2,28 +2,26 @@
 
 namespace App\Actions;
 
+use App\Models\CryptoCurrency;
+use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Facades\Response;
+
 class AddCryptoAction
 {
-    public function execute($requestData)
+    public function execute(array $requestData)
     {
-        $balance = auth()->user()->cryptoWallet()->balance;
-
-        if (
-            $balance >= config('wallet.max_crypto_balance')
-            || ($balance + $requestData['amount'] >= config('wallet.max_crypto_balance'))
-        ) {
+        if (CryptoCurrency::where('name', $requestData['name'])->exists()) {
             return response()->json([
                 'status' => false,
-                'message' => 'You can not have more than a billion in an account',
-            ], 500);
+                'message' => $requestData['name'] . ' already exists in database',
+            ], 409);
         }
 
-        auth()->user()->wallet()->cryptoWallet('balance', $requestData['amount']);
-        $currency = auth()->user()->wallet->currency;
+        $currency = CryptoCurrency::create($requestData);
 
         return response()->json([
             'status' => true,
-            'balance' => $currency . $requestData['amount'] . "added successfully",
+            'message' => $currency->name . ' added succesfully',
         ], 201);
     }
 }

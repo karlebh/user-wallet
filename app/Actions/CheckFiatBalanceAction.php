@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\DB;
 
-class CheckBalanceAction
+class CheckFiatBalanceAction
 {
     public function execute()
     {
