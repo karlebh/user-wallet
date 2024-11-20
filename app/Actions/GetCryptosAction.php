@@ -4,11 +4,14 @@ namespace App\Actions;
 
 use App\Models\CryptoCurrency;
 use App\Models\Currency;
+use App\Traits\ResponseTrait;
 
 class GetCryptosAction
 {
+    use ResponseTrait;
+
     public function execute()
     {
-        return response()->json(['currencies' => CryptoCurrency::paginate(20)]);
+        return $this->successResponse(data: ['currencies' => CryptoCurrency::paginate(20)]);
     }
 }

@@ -3,9 +3,12 @@
 namespace App\Actions;
 
 use App\Models\CryptoWallet;
+use App\Traits\ResponseTrait;
 
 class CheckCryptoBalanceAction
 {
+    use ResponseTrait;
+
     public function execute(array $requestData)
     {
         $balance = CryptoWallet::query()
@@ -16,9 +19,10 @@ class CheckCryptoBalanceAction
             })
             ->pluck('balance');
 
-        return response()->json([
-            'status' => true,
-            'balance' => $balance->toArray(),
-        ], 200);
+        return $this->successResponse(
+            data: [
+                'balance' => $balance->toArray(),
+            ]
+        );
     }
 }

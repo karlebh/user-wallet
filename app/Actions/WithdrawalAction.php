@@ -4,21 +4,19 @@ namespace App\Actions;
 
 use App\Enums\TransactionType;
 use App\Models\Transaction;
+use App\Traits\ResponseTrait;
 use App\Traits\UtilityHelper;
 
 class WithdrawalAction
 {
-    use UtilityHelper;
+    use UtilityHelper, ResponseTrait;
 
     public function execute(array $requestData)
     {
         $balance = auth()->user()->wallet->amount;
 
         if ($requestData['amount'] > $balance) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Insufficient Funds',
-            ], 500);
+            return $this->errorResponse(message: 'Insufficient Funds');
         }
 
         $balance -= $requestData['amount'];
@@ -34,13 +32,12 @@ class WithdrawalAction
             'type' => TransactionType::WITHDRAWAL,
             'trx' => $this->generateTrxCode(),
             'amount' => $requestData['amount'],
-            'note' => $requestData['note'] ?? ""
+            'note' => $requestData['note']
         ]);
 
-        return response()->json([
-            'status' => true,
-            'message' => $wallet->code . $requestData['amount'] . " withdrawn successfully",
-            'balance' => $balance,
-        ], 500);
+        return $this->successResponse(
+            message: $wallet->code . $requestData['amount'] . " withdrawn successfully",
+            data: ['balance' => $balance]
+        );
     }
 }

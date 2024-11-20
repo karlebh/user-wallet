@@ -5,11 +5,12 @@ namespace App\Actions;
 use App\Enums\TransactionType;
 use App\Models\Transaction;
 use App\Models\Wallet;
+use App\Traits\ResponseTrait;
 use App\Traits\UtilityHelper;
 
 class AddFiatToWalletAction
 {
-    use UtilityHelper;
+    use UtilityHelper, ResponseTrait;
 
     public function execute(array $requestData)
     {
@@ -19,10 +20,10 @@ class AddFiatToWalletAction
             $balance >= config('wallet.max_fiat_ballance')
             || ($balance + $requestData['amount'] >= config('wallet.max_fiat_ballance'))
         ) {
-            return response()->json([
-                'status' => false,
-                'message' => 'You can not have more than a billion in an account',
-            ], 500);
+
+            return $this->errorResponse(
+                message: 'You can not have more than a billion in an account',
+            );
         }
 
         auth()->user()->wallet()->increment('balance', $requestData['amount']);
@@ -39,9 +40,12 @@ class AddFiatToWalletAction
             'note' => $requestData['note'] ?? ""
         ]);
 
-        return response()->json([
-            'status' => true,
-            'balance' => $wallet->currency . $requestData['amount'] . "added successfully",
-        ], 201);
+        return $this->successResponse(
+            code: 201,
+            message: $wallet->currency . $requestData['amount'] . "added successfully",
+            data: [
+                'balance' => $wallet->balance,
+            ]
+        );
     }
 }

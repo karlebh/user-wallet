@@ -3,9 +3,12 @@
 namespace App\Actions;
 
 use App\Models\CryptoCurrency;
+use App\Traits\ResponseTrait;
 
 class GetCryptoAction
 {
+    use ResponseTrait;
+
     public function execute(array $requestData)
     {
         $crypto = CryptoCurrency::query()
@@ -15,9 +18,6 @@ class GetCryptoAction
             })
             ->get();
 
-        return response()->json([
-            'status' => true,
-            'crypto' => $crypto->toArray(),
-        ], 200);
+        return $this->successResponse(data: ['crypto' => $crypto->toArray()]);
     }
 }

@@ -5,11 +5,12 @@ namespace App\Actions;
 use App\Enums\TransactionType;
 use App\Models\Transaction;
 use App\Models\Wallet;
+use App\Traits\ResponseTrait;
 use App\Traits\UtilityHelper;
 
 class AddCryptoToWalletAction
 {
-    use UtilityHelper;
+    use UtilityHelper, ResponseTrait;
 
     public function execute(array $requestData)
     {
@@ -19,39 +20,42 @@ class AddCryptoToWalletAction
             $balance >= config('wallet.max_crypto_balance')
             || ($balance + $requestData['amount'] >= config('wallet.max_crypto_balance'))
         ) {
-            return response()->json([
-                'status' => false,
-                'message' => 'You can not have more than a billion in an account',
-            ], 500);
+
+            return $this->errorResponse(
+                message: 'You can not have more than a billion in an account'
+            );
         }
 
         $crypto_wallet = auth()->user()->cryptoWallet()
             ->where('code', $requestData['code'])
-            ->exsits();
+            ->get();
 
         if (! $crypto_wallet) {
-            return response()->json([
-                'status' => false,
-                'message' => 'You do not have any ' . $crypto_wallet->code,
-            ], 404);
+            return $this->errorResponse(
+                code: 404,
+                message: 'You do not have any ' . $crypto_wallet->code
+            );
         }
 
         $crypto_wallet->increment('balance', $requestData['amount']);
 
         Transaction::create([
             'user_id' => auth()->id(),
-            'transactionable_id' => auth()->user()->wallet->id,
-            'transactionable_type' => auth()->user()->wallet::class,
-            'currency' => $requestData['code'] ?? "BTC",
+            'transactionable_id' => $crypto_wallet->id,
+            'transactionable_type' => $crypto_wallet::class,
+            'currency' => $crypto_wallet->code,
             'type' => TransactionType::DEPOSIT,
             'trx' => $this->generateTrxCode(),
             'amount' => $requestData['amount'],
-            'note' => $requestData['note'] ?? ""
+            'note' => $requestData['note']
         ]);
 
-        return response()->json([
-            'status' => true,
-            'balance' =>  $requestData['amount'] . $requestData['code'] . " added successfully",
-        ], 201);
+        return $this->successResponse(
+            code: 201,
+            message: $requestData['amount'] . $requestData['code'] . " added successfully",
+            data: [
+                'balance' => $crypto_wallet->balance
+            ]
+        );
     }
 }

@@ -3,16 +3,19 @@
 namespace App\Actions;
 
 use App\Models\Currency;
+use App\Traits\ResponseTrait;
 
 class AddFiatAction
 {
+    use ResponseTrait;
     public function execute(array $requestData)
     {
         if (Currency::where('name', $requestData['name'])->exists()) {
-            return response()->json([
-                'status' => false,
-                'message' => $requestData['name'] . ' already exists in database',
-            ], 409);
+
+            return $this->errorResponse(
+                code: 409,
+                message: $requestData['name'] . ' already exists in database',
+            );
         }
 
         $currency = Currency::create($requestData);

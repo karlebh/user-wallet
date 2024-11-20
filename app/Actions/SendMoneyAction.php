@@ -6,12 +6,13 @@ namespace App\Actions;
 use App\Enums\TransactionType;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Traits\ResponseTrait;
 use App\Traits\UtilityHelper;
 use Illuminate\Support\Facades\DB;
 
 class SendMoneyAction
 {
-    use UtilityHelper;
+    use UtilityHelper, ResponseTrait;
 
     public function execute(array $requestData)
     {
@@ -23,17 +24,11 @@ class SendMoneyAction
         auth()->user()->load('wallet');
 
         if ($to_user->id === auth()->id()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Can not send money to self',
-            ], 500);
+            return $this->errorResponse(message: 'Can not send money to self');
         }
 
         if ($requestData['amount'] > auth()->user()->wallet->balance) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Insufficient funds',
-            ], 500);
+            return $this->errorResponse(message: 'Insufficient funds');
         }
 
         $transaction = DB::transaction(function () use ($to_user, $requestData) {
@@ -73,11 +68,13 @@ class SendMoneyAction
             return $transaction;
         });
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Transaction Successful!',
-            'transaction_id' => $transaction->id,
-            'trx' => $transaction->trx,
-        ], 201);
+        return $this->successResponse(
+            code: 201,
+            message: 'Transaction Successful!',
+            data: [
+                'transaction_id' => $transaction->id,
+                'trx' => $transaction->trx,
+            ]
+        );
     }
 }

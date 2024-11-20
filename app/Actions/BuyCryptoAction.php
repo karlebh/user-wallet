@@ -7,21 +7,20 @@ use App\Models\CryptoCurrency;
 use App\Models\CryptoWallet;
 use App\Models\Transaction;
 use App\Models\Wallet;
+use App\Traits\ResponseTrait;
 use App\Traits\UtilityHelper;
 
 class BuyCryptoAction
 {
     use UtilityHelper;
+    use ResponseTrait;
 
     public function execute(array $requestData)
     {
         $fiat_balance = auth()->user()->wallet()->balance;
 
         if ($fiat_balance < 1) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Your balance ' . $fiat_balance . ' is insufficient',
-            ], 500);
+            return $this->errorResponse(message: 'Your balance ' . $fiat_balance . ' is insufficient');
         }
 
         $dollar_rate = auth()->user()->wallet()->exchange_rate;
@@ -54,11 +53,11 @@ class BuyCryptoAction
                 'note' => $requestData['note'] ?? ""
             ]);
 
-            return response()->json([
-                'status' => true,
-                'message' => $crypto->name . " Purchased successfully",
-                'crypto_balance' => $to_crypto,
-            ], 201);
+            return $this->successResponse(
+                code: 201,
+                message: $crypto->name . " Purchased successfully",
+                data: ['crypto_balance' => $to_crypto]
+            );
         }
 
         $wallet = CryptoWallet::query()
@@ -79,10 +78,11 @@ class BuyCryptoAction
             'note' => $requestData['note'] ?? ""
         ]);
 
-        return response()->json([
-            'status' => true,
-            'message' => $crypto->name . " Purchased successfully",
-            'crypto_balance' => $to_crypto,
-        ], 201);
+        return $this->successResponse(
+            message: $crypto->name . " Purchased successfully",
+            data: [
+                'crypto_balance' => $to_crypto,
+            ],
+        );
     }
 }

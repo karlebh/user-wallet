@@ -4,9 +4,12 @@ namespace App\Actions;
 
 use App\Models\Currency;
 use App\Models\Wallet;
+use App\Traits\ResponseTrait;
 
 class ChangeBaseCurrencyAction
 {
+    use ResponseTrait;
+
     public function execute(array $requestData)
     {
         $wallet = auth()->user()->wallet;
@@ -24,10 +27,9 @@ class ChangeBaseCurrencyAction
             'currency' => $data->currency,
         ]);
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Base currency successfully changed to ' . $data->code,
-            'balance' => $data->balance,
-        ], 200);
+        return $this->successResponse(
+            message: 'Base currency successfully changed to ' . $data->code,
+            data: [$data->balance],
+        );
     }
 }

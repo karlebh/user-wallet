@@ -3,16 +3,16 @@
 namespace App\Actions;
 
 use App\Models\Transaction;
+use App\Traits\ResponseTrait;
 
 class TransactionHistoryAction
 {
+    use ResponseTrait;
+
     public function execute($requestData)
     {
         if (auth()->user()->transactions()->count() === 0) {
-            return response()->json([
-                'status' => true,
-                'message' => 'User has no transactions yet',
-            ], 204);
+            return $this->errorResponse(message: 'User has no transactions yet');
         }
 
         $transactions = auth()->user()->transactions()
@@ -28,11 +28,9 @@ class TransactionHistoryAction
             })
             ->get();
 
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Transactions retrieved succesfully',
-            'transactions' => $transactions,
-        ], 200);
+        return $this->successResponse(
+            message: 'Transactions retrieved succesfully',
+            data: ['transactions' => $transactions]
+        );
     }
 }
