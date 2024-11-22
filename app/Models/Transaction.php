@@ -11,11 +11,11 @@ class Transaction extends Model
 {
     protected $fillable = [
         'user_id',
-        'transactionable_id',
         'transactionable_type',
+        'transactionable_id',
         'currency',
-        'type',
         "trx",
+        'type',
         'note',
         'amount',
     ];

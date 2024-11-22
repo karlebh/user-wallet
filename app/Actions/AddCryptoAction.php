@@ -13,10 +13,15 @@ class AddCryptoAction
 
     public function execute(array $requestData)
     {
-        if (CryptoCurrency::where('name', $requestData['name'])->exists()) {
+        $crypto = CryptoCurrency::query()
+            ->where('name', $requestData['name'])
+            ->orWhere('code', $requestData['code'])
+            ->exists();
+
+        if ($crypto) {
 
             return $this->errorResponse(
-                message: $requestData['name'] . ' already exists in database',
+                message: $requestData['name'] . ' or ' . $requestData['code'] . ' already exists in database',
                 code: 409,
             );
         }

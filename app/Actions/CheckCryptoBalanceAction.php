@@ -9,19 +9,13 @@ class CheckCryptoBalanceAction
 {
     use ResponseTrait;
 
-    public function execute(array $requestData)
+    public function execute()
     {
-        $balance = CryptoWallet::query()
-            ->where('user_id', auth()->id())
-            ->where('code', $requestData['code'])
-            ->when(!empty($requestData['name']), function ($query) use ($requestData) {
-                $query->where('name', $requestData['name']);
-            })
-            ->pluck('balance');
+        $wallets = CryptoWallet::whereUserId(auth()->id())->select(['code', 'balance', 'name'])->get();
 
         return $this->successResponse(
             data: [
-                'balance' => $balance->toArray(),
+                'wallet' => $wallets,
             ]
         );
     }

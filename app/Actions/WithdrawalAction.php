@@ -13,31 +13,31 @@ class WithdrawalAction
 
     public function execute(array $requestData)
     {
-        $balance = auth()->user()->wallet->amount;
 
-        if ($requestData['amount'] > $balance) {
+        $amount = (float) $requestData['amount'];
+
+        if ($amount > auth()->user()->wallet->balance) {
             return $this->errorResponse(message: 'Insufficient Funds');
         }
 
-        $balance -= $requestData['amount'];
         $wallet = auth()->user()->wallet;
 
-        $wallet->update(['amount' => $balance]);
+        auth()->user()->wallet->decrement('balance', $amount);
 
         Transaction::create([
             'user_id' => auth()->id(),
             'transactionable_id' => $wallet->id,
-            'transactionable_id' => $wallet::class,
+            'transactionable_type' => $wallet::class,
             'currency' => $wallet->code,
             'type' => TransactionType::WITHDRAWAL,
             'trx' => $this->generateTrxCode(),
-            'amount' => $requestData['amount'],
-            'note' => $requestData['note']
+            'amount' => $amount,
+            'note' => $requestData['note'] ?? ''
         ]);
 
         return $this->successResponse(
-            message: $wallet->code . $requestData['amount'] . " withdrawn successfully",
-            data: ['balance' => $balance]
+            message: $wallet->code . $amount . " withdrawn successfully",
+            data: ['balance' => $wallet->balance]
         );
     }
 }

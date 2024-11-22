@@ -14,22 +14,30 @@ class ChangeBaseCurrencyAction
     {
         $wallet = auth()->user()->wallet;
 
-        $balance = $wallet->balance;
-        $currency = $wallet->name;
+        if ($wallet->code === $requestData['code']) {
+            return $this->errorResponse(message: 'This is already your base currency', code: 422);
+        }
 
+        $balance = $wallet->balance;
+
+        $oldExchangeRate = Currency::whereCode($wallet->code)->first()->exchange_rate;
         $data = Currency::whereCode($requestData['code'])->first();
 
-        $newBalance = ($balance / $wallet->exchange_rate) * $data->exchange_rate;
+        // Check if both currencies exist in the array
+        $amountInUSD = $balance /  $oldExchangeRate;
 
-        $wallet->update([
-            'balance' => $newBalance,
-            'code' => $data->code,
-            'currency' => $data->currency,
-        ]);
+        // Convert from USD to target currency
+        $convertedAmount = $amountInUSD * $data->exchange_rate;
+
+        $wallet->balance = $convertedAmount;
+        $wallet->code = $data->code;
+        $wallet->currency = $data->country . ' ' . $data->code;
+        $wallet->save();
+
 
         return $this->successResponse(
             message: 'Base currency successfully changed to ' . $data->code,
-            data: [$data->balance],
+            data: ['wallet' => $wallet->fresh()],
         );
     }
 }

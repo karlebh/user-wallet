@@ -2,13 +2,17 @@
 
 namespace App\Actions;
 
+use App\Enums\TransactionType;
 use App\Models\CryptoCurrency;
 use App\Models\Currency;
+use App\Models\Transaction;
 use App\Traits\ResponseTrait;
+use App\Traits\UtilityHelper;
 
 class SellCryptoAction
 {
     use ResponseTrait;
+    use UtilityHelper;
 
     public function execute(array $requestData)
     {
@@ -28,6 +32,17 @@ class SellCryptoAction
         if ($base_currency === 'USD') {
             auth()->user()->wallet()->increment('balance', $to_usd);
 
+            Transaction::create([
+                'user_id' => auth()->id(),
+                'transactionable_id' => $wallet->id,
+                'transactionable_id' => $wallet::class,
+                'currency' => $wallet->code,
+                'type' => TransactionType::TRANSFER,
+                'trx' => $this->generateTrxCode(),
+                'amount' => $to_usd,
+                'note' => $requestData['note'] ?? ""
+            ]);
+
             return $this->successResponse(
                 message: $requestData['amount'] . $requestData['code'] . "sold successfully",
                 data: [
@@ -41,6 +56,17 @@ class SellCryptoAction
         $to_currency = $to_usd * $dollar_rate;
 
         auth()->user()->wallet()->increment('balance', $to_currency);
+
+        Transaction::create([
+            'user_id' => auth()->id(),
+            'transactionable_id' => $wallet->id,
+            'transactionable_id' => $wallet::class,
+            'currency' => $wallet->code,
+            'type' => TransactionType::TRANSFER,
+            'trx' => $this->generateTrxCode(),
+            'amount' => $to_currency,
+            'note' => $requestData['note'] ?? ""
+        ]);
 
         return $this->successResponse(
             message: $requestData['amount'] . $requestData['code'] . "sold successfully",

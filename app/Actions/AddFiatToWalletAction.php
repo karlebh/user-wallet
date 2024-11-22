@@ -14,13 +14,12 @@ class AddFiatToWalletAction
 
     public function execute(array $requestData)
     {
-        $balance = auth()->user()->wallet()->balance;
+        $balance = auth()->user()->wallet->balance;
 
         if (
-            $balance >= config('wallet.max_fiat_ballance')
-            || ($balance + $requestData['amount'] >= config('wallet.max_fiat_ballance'))
+            $balance > 1_000_000_000
+            || ($balance + $requestData['amount'] > 1_000_000_000)
         ) {
-
             return $this->errorResponse(
                 message: 'You can not have more than a billion in an account',
             );
@@ -32,7 +31,7 @@ class AddFiatToWalletAction
         Transaction::create([
             'user_id' => auth()->id(),
             'transactionable_id' => $wallet->id,
-            'transactionable_id' => $wallet::class,
+            'transactionable_type' => $wallet::class,
             'currency' => $wallet->code,
             'type' => TransactionType::DEPOSIT,
             'trx' => $this->generateTrxCode(),
@@ -42,7 +41,7 @@ class AddFiatToWalletAction
 
         return $this->successResponse(
             code: 201,
-            message: $wallet->currency . $requestData['amount'] . "added successfully",
+            message: $wallet->code . ' ' . $requestData['amount'] . " added successfully",
             data: [
                 'balance' => $wallet->balance,
             ]

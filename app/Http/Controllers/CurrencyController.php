@@ -14,11 +14,8 @@ use App\Http\Requests\AddFiatRequest;
 use App\Http\Requests\ChangeBaseCurrencyRequest;
 use App\Http\Requests\GetCryptoRequest;
 use App\Http\Requests\GetFiatRequest;
-use App\Models\CryptoCurrency;
-use App\Models\Currency;
 use App\Traits\ResponseTrait;
 use Exception;
-use Illuminate\Http\Request;
 
 class CurrencyController extends Controller
 {

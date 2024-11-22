@@ -23,7 +23,8 @@ class SellCryptoRequest extends FormRequest
     {
         return [
             'amount' => ['numeric', 'required'],
-            'code' => ['required', 'exists:crypto_currencies,code']
+            'code' => ['required', 'exists:crypto_currencies,code'],
+            'note' => ['string', 'nullable'],
         ];
     }
 }

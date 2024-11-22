@@ -11,7 +11,7 @@ class GetFiatAction
 
     public function execute(array $requestData)
     {
-        $currency = Currency::where('code', $requestData['code'])->get();
+        $currency = Currency::where('code', $requestData['code'])->first();
         return $this->successResponse(data: ['curreny' => $currency]);
     }
 }

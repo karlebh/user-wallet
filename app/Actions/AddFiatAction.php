@@ -10,8 +10,13 @@ class AddFiatAction
     use ResponseTrait;
     public function execute(array $requestData)
     {
-        if (Currency::where('name', $requestData['name'])->exists()) {
+        $currency = Currency::query()
+            ->where('name', $requestData['name'])
+            ->orWhere('country', $requestData['country'])
+            ->orWhere('code', $requestData['code'])
+            ->exists();
 
+        if ($currency) {
             return $this->errorResponse(
                 code: 409,
                 message: $requestData['name'] . ' already exists in database',
@@ -20,9 +25,12 @@ class AddFiatAction
 
         $currency = Currency::create($requestData);
 
-        return response()->json([
-            'status' => true,
-            'message' => $currency->name . ' added succesfully',
-        ], 201);
+        return $this->successResponse(
+            message: $currency->name . ' added succesfully',
+            code: 201,
+            data: [
+                'currency' => $currency
+            ]
+        );
     }
 }

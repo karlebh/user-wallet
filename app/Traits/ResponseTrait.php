@@ -13,7 +13,7 @@ trait ResponseTrait
         ], $code);
     }
 
-    public function errorResponse(string $message = 'An error occurred', int $code = 500, $errors = null)
+    public function errorResponse(string $message = 'An error occurred', int $code = 500, array $errors = [])
     {
         return response()->json([
             'status' => false,

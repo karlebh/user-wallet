@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class GetFiatRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class GetFiatRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,6 +22,7 @@ class GetFiatRequest extends FormRequest
      */
     public function rules(): array
     {
+        Log::info('Incoming request data:', $this->all());
         return [
             'name' => ['nullable', 'string', 'exists:currencies,name'],
             'code' => ['required', 'string', 'exists:currencies,code'],

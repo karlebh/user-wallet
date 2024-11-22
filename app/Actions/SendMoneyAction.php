@@ -18,7 +18,7 @@ class SendMoneyAction
     {
         //Add rate limiter to route
         $to_user = User::with('wallet')
-            ->where('id', $requestData['reciever_id'])
+            ->where('id', $requestData['receiver_id'])
             ->first();
 
         auth()->user()->load('wallet');
@@ -33,11 +33,9 @@ class SendMoneyAction
 
         $transaction = DB::transaction(function () use ($to_user, $requestData) {
 
-            $new_balance = auth()->user()->wallet->balance - $requestData['amount'];
-            auth()->user()->wallet->update(['balance' => $new_balance]);
+            auth()->user()->wallet->decrement('balance', $requestData['amount']);
 
-            $to_user->wallet->balance += $requestData['amount'];
-            $to_user->wallet->save();
+            $to_user->wallet->increment('balance', $requestData['amount']);
 
             $user = auth()->user();
 
@@ -45,24 +43,24 @@ class SendMoneyAction
             $transaction = Transaction::create([
                 'user_id' => auth()->id(),
                 'transactionable_id' => $user->wallet->id,
-                'transactionable_id' => $user->wallet::class,
+                'transactionable_type' => $user->wallet::class,
                 'currency' => $user->wallet->code,
                 'type' => TransactionType::DEBIT,
                 'trx' => $this->generateTrxCode(),
                 'amount' => $requestData['amount'],
-                'note' => $requestData['note']
+                'note' => $requestData['note'] ?? ""
             ]);
 
             // For receiver
             Transaction::create([
                 'user_id' => $to_user->id,
                 'transactionable_id' => $to_user->wallet->id,
-                'transactionable_id' => $to_user->wallet::class,
+                'transactionable_type' => $to_user->wallet::class,
                 'currency' => $to_user->wallet->code,
                 'type' => TransactionType::CREDIT,
                 'trx' => $this->generateTrxCode(),
                 'amount' => $requestData['amount'],
-                'note' => $requestData['note']
+                'note' => $requestData['note'] ?? ""
             ]);
 
             return $transaction;

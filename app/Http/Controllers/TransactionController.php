@@ -52,10 +52,10 @@ class TransactionController extends Controller
         }
     }
 
-    public function checkCryptoBalance(CheckCryptoBalanceRequest $request)
+    public function checkCryptoBalance()
     {
         try {
-            return (new CheckCryptoBalanceAction())->execute($request->validated());
+            return (new CheckCryptoBalanceAction())->execute();
         } catch (Exception $exception) {
             return $this->errorResponse(message: $exception->getMessage());
         }
@@ -66,13 +66,7 @@ class TransactionController extends Controller
         try {
             return (new TransactionHistoryAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-                'line' => $exception->getLine(),
-                'execption' => $exception,
-                'class' => $exception,
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -112,19 +106,10 @@ class TransactionController extends Controller
         }
     }
 
-    public function addCrypto(AddCryptoToWalletRequest $request)
+    public function addCryptoToWallet(AddCryptoToWalletRequest $request)
     {
         try {
             return (new AddCryptoToWalletAction())->execute($request->validated());
-        } catch (Exception $exception) {
-            return $this->errorResponse(message: $exception->getMessage());
-        }
-    }
-
-    public function getCrypto(GetCryptoRequest $request)
-    {
-        try {
-            return (new GetCryptoAction())->execute($request->validated());
         } catch (Exception $exception) {
             return $this->errorResponse(message: $exception->getMessage());
         }

@@ -23,7 +23,9 @@ class BuyCryptoRequest extends FormRequest
     {
         return [
             'name' => ['nullable', 'string', 'exists:crypto_currencies,name'],
-            'code' => ['required', 'string', 'exists:crypto_currencies,code'],
+            'code' => ['nullable', 'string', 'exists:crypto_currencies,code'],
+            'amount' => ['nullable', 'numeric'],
+            'note' => ['string', 'nullable'],
         ];
     }
 }
