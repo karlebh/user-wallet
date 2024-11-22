@@ -50,7 +50,7 @@ class SendMoneyAction
                 'type' => TransactionType::DEBIT,
                 'trx' => $this->generateTrxCode(),
                 'amount' => $requestData['amount'],
-                'note' => $requestData['note'] ?? ""
+                'note' => $requestData['note']
             ]);
 
             // For receiver
@@ -62,7 +62,7 @@ class SendMoneyAction
                 'type' => TransactionType::CREDIT,
                 'trx' => $this->generateTrxCode(),
                 'amount' => $requestData['amount'],
-                'note' => $requestData['note'] ?? ""
+                'note' => $requestData['note']
             ]);
 
             return $transaction;

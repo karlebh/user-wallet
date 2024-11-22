@@ -27,18 +27,19 @@ use App\Http\Requests\AddMoneyRequest;
 use App\Http\Requests\BuyCryptoRequest;
 use App\Http\Requests\CheckCryptoBalanceRequest;
 use App\Http\Requests\GetCryptoRequest;
+use App\Http\Requests\SellCryptoRequest;
+use App\Traits\ResponseTrait;
 
 class TransactionController extends Controller
 {
+    use ResponseTrait;
+
     public function sendMoney(SendMoneyRequest $request)
     {
         try {
             return (new SendMoneyAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -47,10 +48,7 @@ class TransactionController extends Controller
         try {
             return (new CheckFiatBalanceAction())->execute();
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -59,10 +57,7 @@ class TransactionController extends Controller
         try {
             return (new CheckCryptoBalanceAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -86,10 +81,7 @@ class TransactionController extends Controller
         try {
             return (new WithdrawalAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -98,22 +90,16 @@ class TransactionController extends Controller
         try {
             return (new BuyCryptoAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
-    public function sellCrypto()
+    public function sellCrypto(SellCryptoRequest $request)
     {
         try {
-            return (new SellCryptoAction())->execute();
+            return (new SellCryptoAction())->execute($request->va);
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -122,10 +108,7 @@ class TransactionController extends Controller
         try {
             return (new AddFiatToWalletAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -134,10 +117,7 @@ class TransactionController extends Controller
         try {
             return (new AddCryptoToWalletAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -146,10 +126,7 @@ class TransactionController extends Controller
         try {
             return (new GetCryptoAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 }

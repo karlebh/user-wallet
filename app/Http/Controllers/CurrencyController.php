@@ -16,20 +16,20 @@ use App\Http\Requests\GetCryptoRequest;
 use App\Http\Requests\GetFiatRequest;
 use App\Models\CryptoCurrency;
 use App\Models\Currency;
+use App\Traits\ResponseTrait;
 use Exception;
 use Illuminate\Http\Request;
 
 class CurrencyController extends Controller
 {
+    use ResponseTrait;
+
     public function changeBaseCurrency(ChangeBaseCurrencyRequest $request)
     {
         try {
             return (new ChangeBaseCurrencyAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -38,10 +38,7 @@ class CurrencyController extends Controller
         try {
             return (new GetFiatsAction())->execute();
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -50,10 +47,7 @@ class CurrencyController extends Controller
         try {
             return (new GetCryptosAction())->execute();
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -62,10 +56,7 @@ class CurrencyController extends Controller
         try {
             return (new GetFiatAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -74,10 +65,7 @@ class CurrencyController extends Controller
         try {
             return (new GetCryptoAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 
@@ -86,10 +74,7 @@ class CurrencyController extends Controller
         try {
             return (new AddFiatAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
     public function addCrypto(AddCryptoRequest $request)
@@ -97,10 +82,7 @@ class CurrencyController extends Controller
         try {
             return (new AddCryptoAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return response()->json([
-                'status' => false,
-                'message' => $exception->getMessage(),
-            ], 500);
+            return $this->errorResponse(message: $exception->getMessage());
         }
     }
 }
