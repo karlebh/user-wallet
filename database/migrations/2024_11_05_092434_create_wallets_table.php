@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained();
+            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->string('currency')->default('Nigerian Naira');
             $table->string('code')->default('NGN');
             $table->float('balance')->unsigned()->default(10_000);

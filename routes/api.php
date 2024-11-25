@@ -25,9 +25,9 @@ Route::middleware(['auth:sanctum'])
             Route::get('/transactions', [TransactionController::class, 'transactions']);
             Route::post('/withdraw', [TransactionController::class, 'withdraw']);
             Route::post('/buy-crypto', [TransactionController::class, 'buyCrypto']);
-            // Route::post('/sell-crypto', [TransactionController::class, 'sellCrypto']);
+            Route::post('/sell-crypto', [TransactionController::class, 'sellCrypto']);
             Route::post('/add-money', [TransactionController::class, 'addMoney']);
-            // Route::post('/add-crypto-wallet', [TransactionController::class, 'addCryptoToWallet']);
+            Route::post('/add-crypto-wallet', [TransactionController::class, 'addCryptoToWallet']);
 
             Route::patch('/change-base-currency', [CurrencyController::class, 'changeBaseCurrency']);
         }

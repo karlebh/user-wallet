@@ -84,14 +84,14 @@ class TransactionController extends Controller
         try {
             return (new BuyCryptoAction())->execute($request->validated());
         } catch (Exception $exception) {
-            return $this->errorResponse(message: $exception->getMessage());
+            return $this->errorResponse(message: $exception->getMessage(), errors: [$exception]);
         }
     }
 
     public function sellCrypto(SellCryptoRequest $request)
     {
         try {
-            return (new SellCryptoAction())->execute($request->va);
+            return (new SellCryptoAction())->execute($request->validated());
         } catch (Exception $exception) {
             return $this->errorResponse(message: $exception->getMessage());
         }

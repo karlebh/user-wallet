@@ -32,4 +32,10 @@ trait UtilityHelper
 
         return $convertedAmount;
     }
+
+    public function round($value, $precision =  7)
+    {
+
+        return round($value, $precision);
+    }
 }

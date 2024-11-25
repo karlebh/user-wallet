@@ -45,7 +45,7 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         Auth::user()->wallet()->create();
-        Auth::user()->cryptoWallet()->create();
+        Auth::user()->cryptoWallets()->create();
 
         return response()->json([
             'status' => 'true',

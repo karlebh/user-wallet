@@ -14,7 +14,7 @@ class AddCryptoToWalletAction
 
     public function execute(array $requestData)
     {
-        $balance = auth()->user()->cryptoWallet()->balance;
+        $balance = auth()->user()->cryptoWallets()->balance;
 
         if (
             $balance >= config('wallet.max_crypto_balance')
@@ -26,7 +26,7 @@ class AddCryptoToWalletAction
             );
         }
 
-        $crypto_wallet = auth()->user()->cryptoWallet()
+        $crypto_wallet = auth()->user()->cryptoWallets()
             ->where('code', $requestData['code'])
             ->get();
 

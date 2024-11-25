@@ -17,26 +17,26 @@ class SellCryptoAction
     public function execute(array $requestData)
     {
         $amount = $requestData['amount'];
-        $wallet = auth()->user()->cryptoWallet()->where('code', $requestData['code']);
+        $wallet = auth()->user()->cryptoWallets()->where('code', strtoupper($requestData['code']));
         $base_currency = auth()->user()->wallet->code;
-        $rate = CryptoCurrency::where('code', $requestData['code'])->first()->exchange_rate;
+        $rate = CryptoCurrency::where('code', $requestData['code'])->value('exchange_rate');
 
-        if ($amount > $wallet->balance) {
+        if ($amount > $wallet->value('balance')) {
             return $this->errorResponse(message: 'Insufficient funds');
         }
 
         $wallet->decrement('balance', $requestData['amount']);
 
-        $to_usd = $wallet->balance * $rate;
+        $to_usd = $this->round($wallet->value('balance') * $rate);
 
         if ($base_currency === 'USD') {
             auth()->user()->wallet()->increment('balance', $to_usd);
 
             Transaction::create([
                 'user_id' => auth()->id(),
-                'transactionable_id' => $wallet->id,
-                'transactionable_id' => $wallet::class,
-                'currency' => $wallet->code,
+                'transactionable_id' => $wallet->value('id'),
+                'transactionable_type' => $wallet::class,
+                'currency' => $wallet->value('code'),
                 'type' => TransactionType::TRANSFER,
                 'trx' => $this->generateTrxCode(),
                 'amount' => $to_usd,
@@ -44,24 +44,24 @@ class SellCryptoAction
             ]);
 
             return $this->successResponse(
-                message: $requestData['amount'] . $requestData['code'] . "sold successfully",
+                message: "{$requestData['amount']} " . strtoupper($requestData['code']) . " sold successfully",
                 data: [
-                    "crypto_balance" => $wallet->fresh()->balance,
+                    "crypto_balance" => $wallet->value('balance'),
                     'fiat_balance' => auth()->user()->wallet->balance,
                 ]
             );
         }
 
-        $dollar_rate = Currency::where('code', $base_currency)->first()->exchange_rate;
-        $to_currency = $to_usd * $dollar_rate;
+        $dollar_rate = Currency::where('code', $base_currency)->value('exchange_rate');
+        $to_currency = $this->round($to_usd * $dollar_rate);
 
         auth()->user()->wallet()->increment('balance', $to_currency);
 
         Transaction::create([
             'user_id' => auth()->id(),
-            'transactionable_id' => $wallet->id,
-            'transactionable_id' => $wallet::class,
-            'currency' => $wallet->code,
+            'transactionable_id' => $wallet->value('id'),
+            'transactionable_type' => $wallet::class,
+            'currency' => $wallet->value('code'),
             'type' => TransactionType::TRANSFER,
             'trx' => $this->generateTrxCode(),
             'amount' => $to_currency,
@@ -69,10 +69,12 @@ class SellCryptoAction
         ]);
 
         return $this->successResponse(
-            message: $requestData['amount'] . $requestData['code'] . "sold successfully",
+            message: "{$requestData['amount']} " . strtoupper($requestData['code']) . " sold successfully",
             data: [
-                "crypto_balance" => $wallet->fresh()->balance,
-                'fiat_balance' => auth()->user()->wallet->fresh()->balance,
+                "crypto_balance" => number_format($wallet->value('balance')),
+                'fiat_balance' => number_format(auth()->user()->wallet->balance),
+                'crypto_account' => $wallet->first(),
+                'fiat_account' => auth()->user()->wallet
             ]
         );
     }
