@@ -14,7 +14,7 @@ class AddCryptoToWalletAction
 
     public function execute(array $requestData)
     {
-        $balance = auth()->user()->cryptoWallets()->balance;
+        $balance = auth()->user()->cryptoWallets()->whereCode(strtoupper($requestData['code']))->first()->balance;
 
         if (
             $balance >= config('wallet.max_crypto_balance')
@@ -27,8 +27,8 @@ class AddCryptoToWalletAction
         }
 
         $crypto_wallet = auth()->user()->cryptoWallets()
-            ->where('code', $requestData['code'])
-            ->get();
+            ->whereCode(strtoupper($requestData['code']))
+            ->first();
 
         if (! $crypto_wallet) {
             return $this->errorResponse(
@@ -47,12 +47,12 @@ class AddCryptoToWalletAction
             'type' => TransactionType::DEPOSIT,
             'trx' => $this->generateTrxCode(),
             'amount' => $requestData['amount'],
-            'note' => $requestData['note']
+            'note' => $requestData['note'] ?? ""
         ]);
 
         return $this->successResponse(
             code: 201,
-            message: $requestData['amount'] . $requestData['code'] . " added successfully",
+            message: "{$requestData['amount']} " . strtoupper($requestData['code']) . " added successfully",
             data: [
                 'balance' => $crypto_wallet->balance
             ]
