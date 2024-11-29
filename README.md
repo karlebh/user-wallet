@@ -65,9 +65,3 @@ The platform prioritizes user security by requiring authentication for sensitive
 ## How to Access
 
 This API is accessible via endpoints, but you will typically interact with it through an integrated application or dashboard designed for this purpose. Simply log in to your account, and the intuitive interface will guide you through each feature.
-
-For businesses, integration guides are available to connect your systems to the API for automated currency management.
-
----
-
-If you have any questions or require support, please contact our team.
