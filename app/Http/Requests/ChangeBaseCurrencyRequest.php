@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
-class SendMoneyRequest extends FormRequest
+class ChangeBaseCurrencyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,12 +22,9 @@ class SendMoneyRequest extends FormRequest
      */
     public function rules(): array
     {
-        return
-            [
-                'receiver_id' => ['required', 'integer'],
-                'amount' => ['required', 'numeric', 'min:1', 'max:2000000'],
-                'currency' => ['nullable', 'string'],
-                'note' => ['nullable', 'string'],
-            ];
+        return [
+            'name' => ['nullable', 'string', 'exists:currencies,name'],
+            'code' => ['required', 'string', 'exists:currencies,code'],
+        ];
     }
 }

@@ -15,12 +15,13 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained();
-            $table->foreignIdFor(Wallet::class)->constrained();
-            $table->string('currency')->default('NGN');
+            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->morphs('transactionable');
+            $table->string('currency');
+            $table->string('trx');
             $table->string('type');
             $table->text('note')->nullable();
-            $table->bigInteger('amount')->unsigned();
+            $table->float('amount')->unsigned();
             $table->timestamps();
         });
     }

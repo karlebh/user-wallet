@@ -18,6 +18,11 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    private function cleanToken($token)
+    {
+        return (explode('|', $token))[1];
+    }
+
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -33,16 +38,18 @@ class RegisteredUserController extends Controller
         ]);
 
         $token = $user->createToken('API TOKEN')->plainTextToken;
+        $token = $this->cleanToken($token);
 
         event(new Registered($user));
 
         Auth::login($user);
 
         Auth::user()->wallet()->create();
+        Auth::user()->cryptoWallets()->create();
 
         return response()->json([
             'status' => 'true',
-            'token' => $token
+            'token' => $token,
         ], 201);
     }
 }

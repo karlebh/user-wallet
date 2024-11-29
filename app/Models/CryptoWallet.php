@@ -6,13 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-class Wallet extends Model
+class CryptoWallet extends Model
 {
-    protected $fillable = [
-        'balance',
-        'user_id',
-        'currency',
-    ];
+    protected $guarded = [];
 
     public function user(): BelongsTo
     {
